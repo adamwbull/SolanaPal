@@ -28,5 +28,5 @@ Coming soon!
 `/pay <address> <amount>` - Available after linking your wallet, pay a given address a specified amount in SOL.
 
 ## Thanks To...
-- [Discord.js](https://github.com/discordjs/discord.js) for their excellent bot library to interact with Discord API.
-- [@solana/web3.js](https://solana-labs.github.io/solana-web3.js/) for their web3/solana interaction library.
+- [Discord.js](https://github.com/discordjs/discord.js) for their bot library to interact with Discord API.
+- [@solana/web3.js](https://solana-labs.github.io/solana-web3.js/) for their Solana library.
