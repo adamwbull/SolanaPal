@@ -1,0 +1,16 @@
+{
+  "name": "solanapal",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "cappycap",
+  "license": "ISC",
+  "dependencies": {
+    "@discordjs/rest": "^0.2.0-canary.0",
+    "discord-api-types": "^0.25.2",
+    "discord.js": "^13.3.1"
+  }
+}
