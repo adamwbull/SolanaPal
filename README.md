@@ -1,4 +1,6 @@
-<img src="https://github.com/cappycap/SolanaPal/blob/main/branding/logo.png" width=50% height=50%>
+<p align="center">
+<img src="https://github.com/cappycap/SolanaPal/blob/main/branding/logo.png" width=30% height=30%>
+</p>
 
 # SolanaPal v1.1.0
 Discord bot for interacting with the Solana blockchain.
