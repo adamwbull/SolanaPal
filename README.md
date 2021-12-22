@@ -14,19 +14,20 @@ Discord bot for interacting with the Solana blockchain.
 
 ## Deployment
 
-1. Update the `.env.example` file with your own variables, then rename it to `.env`
-2. Open up a terminal, navigate to repo directory, then run `npm install` to install dependencies.
-3. Run `npm run register` to register the bot's commands with Discord API.
-4. Run `npm run bot` to spin up the bot.
-5. Test the bot on your server!
+1. Clone the repo onto your own machine using `git clone https://github.com/cappycap/SolanaPal.git`.
+2. Update the `.env.example` file with your own variables, then rename it to `.env`
+3. Open up a terminal, navigate to repo directory, then run `npm install` to install dependencies.
+4. Run `npm run register` to register the bot's commands with Discord API.
+5. Run `npm run bot` to spin up the bot.
+6. Test the bot on your server!
 
 ## Commands
 
 `/ping` - What is a bot without an epic ping command?
 
-## Planned Commands
+`/nfts <address>` - View a catalog of owned NFTs for a given address.
 
-`/nfts <address>` - View a catalog Metaplex-based NFTs for a given address.
+## Planned Commands
 
 `/profile <address>` - View a basic profile for a given address including Solana balance and transaction history.
 

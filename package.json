@@ -1,16 +1,16 @@
 {
   "name": "solanapal",
   "version": "1.0.0",
-  "type": "module",
   "description": "Discord bot for interacting with the Solana blockchain.",
   "main": "index.js",
   "scripts": {
     "bot": "node --experimental-specifier-resolution=node bot/bot.js",
-    "register": "node --experimental-specifier-resolution=node registration/registration.js"
+    "register": "node --experimental-specifier-resolution=node bot/registration.js"
   },
   "author": "cappycap",
   "license": "ISC",
   "dependencies": {
+    "@discordjs/builders": "^0.9.0",
     "@discordjs/rest": "^0.2.0-canary.0",
     "discord-api-types": "^0.25.2",
     "discord.js": "^13.3.1"
