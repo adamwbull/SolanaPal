@@ -10,7 +10,7 @@ import { Routes } from 'discord-api-types/v9';
 // Command list.
 const commands = [{
   name: 'ping',
-  description: 'Replies with Pong!'
+  description: 'What is a bot without an epic ping command?'
 }]; 
 
 // Upload command list for the bot specified in .env.
