@@ -4,7 +4,7 @@
   "description": "Discord bot for interacting with the Solana blockchain.",
   "main": "index.js",
   "scripts": {
-    "bot": "node --experimental-specifier-resolution=node bot/bot.js",
+    "bot": "node --experimental-specifier-resolution=node --tls-min-v1.0 bot/bot.js",
     "register": "node --experimental-specifier-resolution=node bot/registration.js"
   },
   "author": "cappycap",
@@ -13,6 +13,7 @@
     "@discordjs/builders": "^0.9.0",
     "@discordjs/rest": "^0.2.0-canary.0",
     "@metaplex/js": "^3.5.0",
+    "@psibean/discord.js-pagination": "^4.0.2",
     "axios": "^0.24.0",
     "discord-api-types": "^0.25.2",
     "discord.js": "^13.3.1"

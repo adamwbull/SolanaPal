@@ -7,6 +7,7 @@ const {
 } = programs;
 const axios = require('axios');
 const { MessageEmbed } = require('discord.js');
+const { ButtonPaginator, SelectPaginator } = require('@psibean/discord.js-pagination');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -19,110 +20,197 @@ module.exports = {
 		),
 	async execute(interaction) {
 
-		//console.log('interaction:',interaction)
-
-		// Defer reply until embeds generate.
+		// Defer reply until pages generate.
 		await interaction.reply("Connecting to Solana...");
 
 		// Grab address from option.
 		var address = interaction.options._hoistedOptions[0].value;
 
-		// Create publicKey.
- 		// John's wallet for testing: LxAuDBo4eBkJ9x64EzWAyPXaFSRvQj8Fhk3TKaoRN7f
-		var publicKey = new web3.PublicKey(address);
+		try {
 
-		// Connect to cluster
-		var connection = new web3.Connection(
-			web3.clusterApiUrl(process.env.NET),
-			'confirmed',
-		);
+			// Create publicKey.
+			// John's wallet for testing: LxAuDBo4eBkJ9x64EzWAyPXaFSRvQj8Fhk3TKaoRN7f
+			var publicKey = new web3.PublicKey(address);
 
-		// get account info
-		// account data is bytecode that needs to be deserialized
-		// serialization and deserialization is program specic
-		let account = await connection.getAccountInfo(publicKey);
+			await interaction.editReply("Wallet found, scanning for NFTs! This may take a minute depending on collection size.")
 
-		// Get token filter's program Id to limit to NFTs.
-		var nftToken = new web3.PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
+			// Connect to cluster
+			var connection = new web3.Connection(
+				web3.clusterApiUrl(process.env.NET),
+				'confirmed',
+			);
 
-		// Filter NFT collection.
-		var filter = { programId: nftToken };
-		var accounts = await connection.getTokenAccountsByOwner(publicKey, filter);
-		//console.log('accounts:',accounts)
+			// get account info
+			// account data is bytecode that needs to be deserialized
+			// serialization and deserialization is program specic
+			let account = await connection.getAccountInfo(publicKey);
 
-		// For each account, get data...
+			// Get token filter's program Id to limit to NFTs.
+			var nftToken = new web3.PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
 
-		// Convert buffer to a base64 string.
-		var accountData = accounts.value[0].account.data;
-		var parsed = accountData.toString("base64");
+			// Filter NFT collection.
+			var filter = { programId: nftToken };
+			var accounts = await connection.getTokenAccountsByOwner(publicKey, filter);
 
-		// Get proper data buf from base64 string.
-		var fullUTFBuf = Buffer.from(parsed, "base64"); 
-		var fullB64Buf = Buffer.from(fullUTFBuf, "utf8");
+			if (accounts.value.length > 0) {
 
-		// Isolate mint address.
-		var mintBuf = fullB64Buf.slice(0,32)
+				// For each account, get data...
+				var pages = [];
 
-		// Convert buf to PublicKey.
-		var mintHolderKey = new web3.PublicKey(mintBuf)
+				for (var j = 0; j < accounts.value.length; j++) {
 
-		// Convert to address.
-		var mintAddress = mintHolderKey.toString()
+					// Convert buffer to a base64 string.
+					var accountData = accounts.value[j].account.data;
+					var parsed = accountData.toString("base64");
 
-		// Get Metaplex data uri.
-		const metaConn = new Connection(process.env.NET);
-		const mintPubKey = new web3.PublicKey(mintAddress);
-		const pda = await Metadata.getPDA(mintPubKey);
-		const metaplexData = await Metadata.load(metaConn, pda);
-		/*
-		var oldData = {
-			"name":metaplexData.data.data.name,
-			"symbol":metaplexData.data.data.symbol,
-			"uri":metaplexData.data.data.uri,
-			"sellerFeeBasisPoints":metaplexData.data.data.sellerFeeBasisPoints,
-			"data":metaplexData.info.data
-		}
-		*/
+					// Get proper data buf from base64 string.
+					var fullUTFBuf = Buffer.from(parsed, "base64"); 
+					var fullB64Buf = Buffer.from(fullUTFBuf, "utf8");
 
-		// Retrieve consolidated data.
-		var data = await axios.get(metaplexData.data.data.uri)
-		var data = data.data
+					// Isolate mint address.
+					var mintBuf = fullB64Buf.slice(0,32)
 
-		console.log('data:',data)
+					// Convert buf to PublicKey.
+					var mintHolderKey = null
+					try {
+						mintHolderKey = new web3.PublicKey(mintBuf);
+					} catch (error) {
+						continue
+					}
 
-		// Begin generating embed by creating an array of fields.
-		var embedFields = []
+					// Convert to address.
+					var mintAddress = mintHolderKey.toString()
 
-		for (var i = 0; i < data.attributes.length; i++) {
-			console.log('attrib:',data.attributes[i])
-			embedFields.push({
-				name: data.attributes[i].trait_type,
-				value: data.attributes[i].value,
-				inline: true
-			})
-		}
+					// Get Metaplex data uri.
+					const metaConn = new Connection(process.env.NET);
 
-		// Additional data.
-		var solscan = "https://solscan.io/token/" + mintAddress
-		var footerText = "Information requested by " + interaction.user.username
+					var mintPubKey = null
+					try {
+						mintPubKey = new web3.PublicKey(mintAddress);
+					} catch (error) {
+						continue
+					}
+					
+					// Ensure pda exists.
+					var pda = null
+					try {
+						pda = await Metadata.getPDA(mintPubKey);
+					} catch (error) {
+						continue
+					}
 
-		var embed = {
-			title: data.name,
-			url: solscan,
-			description: data.description,
-			thumbnail: {
-				url: data.image
-			},
-			fields: embedFields,
-			footer: {
-				text: footerText
+					// Retrieve metaplex data.
+					var metaplexData = null;
+					try {
+						metaplexData = await Metadata.load(metaConn, pda);
+					} catch (error) {
+						continue
+					}
+
+					/*
+					var oldData = {
+						"name":metaplexData.data.data.name,
+						"symbol":metaplexData.data.data.symbol,
+						"uri":metaplexData.data.data.uri,
+						"sellerFeeBasisPoints":metaplexData.data.data.sellerFeeBasisPoints,
+						"data":metaplexData.info.data
+					}
+					*/
+
+					// Check to see if this is a Metaplex NFT:
+					if (metaplexData.data.data.uri.length > 0) {
+
+						// Retrieve consolidated data.
+						var data = null;
+						try {
+							data = await axios.get(metaplexData.data.data.uri);
+						} catch (error) {
+							continue;
+						}
+						var data = data.data;
+
+						// Begin generating embed by creating an array of fields.
+						var embedFields = [];
+
+						for (var i = 0; i < data.attributes.length; i++) {
+							embedFields.push({
+								name: data.attributes[i].trait_type,
+								value: data.attributes[i].value,
+								inline: true
+							})
+						}
+
+						// Additional data.
+						var solscan = "https://solscan.io/token/" + mintAddress
+						var footerText = "Information requested by " + interaction.user.username
+
+						var embed = new MessageEmbed();
+						embed.setTitle(data.name);
+						embed.setURL(solscan);
+						embed.setDescription(data.description);
+						embed.setThumbnail(data.image);
+						embed.addFields(embedFields);
+						embed.setFooter(footerText);
+
+						pages.push(embed);
+
+					}
+
+				}
+
+				// Check to see if NFTs were found.
+				if (pages.length > 0) {
+
+					/*// Build selection menu.
+					var selectOptions = []
+					for (var k = 0; k < pages.length; k++) {
+						var embed = pages[k]
+						selectOptions.push({
+							label: embed.title,
+							value: `${i+1}`,
+							description: embed.description
+						})
+					}
+
+					// Send pages.
+					const selectPaginator = new SelectPaginator(interaction, {
+						pages,
+						selectOptions: selectOptions,
+						}
+					);
+					await selectPaginator.send();*/
+
+					const buttonPaginator = new ButtonPaginator(interaction, { pages });
+					await buttonPaginator.send();
+
+					await interaction.editReply("NFTs found!");
+					console.log('NFTs delivered for wallet ' + address)
+
+				} else {
+
+					await interaction.editReply("The specified wallet doesn't own any NFTs.");
+
+				}
+
+			} else {
+
+				await interaction.editReply("The specified wallet doesn't own any NFTs.");
+
 			}
+
+		} catch (error) {
+			
+			console.log('Error encountered for address',address)
+			console.log(error)
+
+			if (error.message == 'Invalid public key input') {
+				await interaction.editReply("Invalid Solana address provided.");
+			} else {
+				await interaction.editReply("The bot ran into a problem! Let an admin know so they can fix it.");
+			}
+			
+
 		}
-
-		console.log('embed:',embed)
-
-		await interaction.editReply("NFTs found!")
-		await interaction.editReply({ embeds: [embed] })
 
 	},
 };
