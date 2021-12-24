@@ -1,0 +1,62 @@
+{
+   "name":"SolanaDroidBusiness #827",
+   "symbol":"SDB",
+   "image":"https://www.arweave.net/Xnd6R37-ZRwP7Gcxx6H1P14eSUA1AaWFIJ5gF7wrp6E?ext=png",
+   "properties":{
+      "files":[
+         {
+            "uri":"https://www.arweave.net/Xnd6R37-ZRwP7Gcxx6H1P14eSUA1AaWFIJ5gF7wrp6E?ext=png",
+            "type":"image/png"
+         }
+      ],
+      "category":"image",
+      "creators":[
+         {
+            "address":"9Z2YcpKL5epEtw4k3rp1gVjoCnGas7TKDkb14vfedAkv",
+            "share":100
+         }
+      ]
+   },
+   "seller_fee_basis_points":500,
+   "attributes":[
+      {
+         "trait_type":"Background",
+         "value":"Red"
+      },
+      {
+         "trait_type":"Clothes",
+         "value":"Red T-shirt"
+      },
+      {
+         "trait_type":"Body",
+         "value":"Titanium"
+      },
+      {
+         "trait_type":"Reactor",
+         "value":"Green"
+      },
+      {
+         "trait_type":"Eyes",
+         "value":"Angry Black Red"
+      },
+      {
+         "trait_type":"Hat",
+         "value":"Headphone"
+      },
+      {
+         "trait_type":"Mouth",
+         "value":"Green Blue"
+      },
+      {
+         "trait_type":"Model",
+         "value":"BLZ-420"
+      }
+   ],
+   "description":"SDB is a collection of 5,000 uniquely generated 24-bit droids living on the Solana blockchain.",
+   "collection":{
+      "collection":{
+         "name":"SolanaDroidBusiness",
+         "family":"SDB"
+      }
+   }
+}
