@@ -57,10 +57,11 @@ module.exports = {
 				// For each account, get data...
 				var pages = [];
 
-				for (var j = 0; j < accounts.value.length; j++) {
+ 				for (var j = 0; j < accounts.value.length; j++) {
 
 					// Convert buffer to a base64 string.
 					var accountData = accounts.value[j].account.data;
+
 					var parsed = accountData.toString("base64");
 
 					// Get proper data buf from base64 string.
@@ -88,15 +89,15 @@ module.exports = {
 					try {
 						mintPubKey = new web3.PublicKey(mintAddress);
 					} catch (error) {
-						continue
+						continue;
 					}
-					
-					// Ensure pda exists.
+
+ 					// Get the pda for the token.
 					var pda = null
 					try {
 						pda = await Metadata.getPDA(mintPubKey);
 					} catch (error) {
-						continue
+						continue;
 					}
 
 					// Retrieve metaplex data.
@@ -104,7 +105,7 @@ module.exports = {
 					try {
 						metaplexData = await Metadata.load(metaConn, pda);
 					} catch (error) {
-						continue
+						continue;
 					}
 
 					/*
@@ -120,6 +121,16 @@ module.exports = {
 					// Check to see if this is a Metaplex NFT:
 					if (metaplexData.data.data.uri.length > 0) {
 
+						// Let's check price data.
+						var signatures = await connection.getSignaturesForAddress(accounts.value[j].account.owner);
+
+						var transactions = []
+						for (var i = 0; i < signatures.length; i++) {
+							var transaction = await connection.getTransaction(signatures[i].signature);
+							console.log(transaction)
+						}
+
+
 						// Retrieve consolidated data.
 						var data = null;
 						try {
@@ -128,6 +139,7 @@ module.exports = {
 							continue;
 						}
 						var data = data.data;
+						
 
 						// Begin generating embed by creating an array of fields.
 						var embedFields = [];
@@ -142,7 +154,6 @@ module.exports = {
 
 						// Additional data.
 						var solscan = "https://solscan.io/token/" + mintAddress
-						var footerText = "Information requested by " + interaction.user.username
 
 						var embed = new MessageEmbed();
 						embed.setTitle(data.name);
@@ -150,9 +161,19 @@ module.exports = {
 						embed.setDescription(data.description);
 						embed.setThumbnail(data.image);
 						embed.addFields(embedFields);
-						embed.setFooter(footerText);
 
 						pages.push(embed);
+
+						// Output data to console in certain situations.
+						/*if (data.name.includes("")) {
+
+							console.log('')
+							console.log('owner:',accounts.value[j].account.owner.toString(),accounts.value[j].account.owner.toBase58())
+							console.log('pubkey:',accounts.value[j].pubkey.toString(),accounts.value[j].pubkey.toBase58())
+							console.log(data.name,mintAddress)
+							console.log('')
+						}*/
+
 
 					}
 
@@ -179,6 +200,13 @@ module.exports = {
 						}
 					);
 					await selectPaginator.send();*/
+
+					// Set footers based on total NFT count.
+					var total = pages.length;
+					for (var k = 0; k < total; k++) {
+						var p = k+1;
+						pages[k].setFooter('Viewing: ' + p + ' / ' + total + '');
+					}
 
 					const buttonPaginator = new ButtonPaginator(interaction, { pages });
 					await buttonPaginator.send();
